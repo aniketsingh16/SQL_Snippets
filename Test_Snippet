@@ -1,0 +1,18 @@
+SELECT 
+    Model,
+    Brand,
+    Tyre_Pressure, 
+    Tyre_Pressure * 0.0145 AS Tyre_Pressure_PSI,
+    CASE 
+        WHEN Tyre_Pressure * 0.0145 BETWEEN 3 AND 10 
+        THEN 'KPA (Needs Conversion)' 
+        ELSE 'HPA (Correct Value)' 
+    END AS Pressure_Type,
+    -- If it's in KPA, convert to HPA by multiplying by 10
+    CASE 
+        WHEN Tyre_Pressure * 0.0145 BETWEEN 3 AND 10 
+        THEN Tyre_Pressure * 10 
+        ELSE Tyre_Pressure 
+    END AS Converted_Tyre_Pressure
+FROM  `vocal-operand-452018-n2.TestDataset.tpms-test`
+LIMIT 50;
