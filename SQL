@@ -1,0 +1,15 @@
+CASE 
+            -- TYRE PRESSURE LOGIC: Convert KPA to HPA if PSI is between 5-10
+            WHEN nd.STATUS_KEY = 'TYRE_PRESSURE' THEN 
+                CASE 
+                    WHEN CAST(nd.STATUS_VALUE AS FLOAT64) * 0.0145 BETWEEN 5 AND 10 
+                    THEN CAST(nd.STATUS_VALUE AS FLOAT64) * 10  -- Convert KPA to HPA
+                    ELSE nd.STATUS_VALUE 
+                END
+            -- ODOMETER LOGIC: Adjust values if conditions match
+            WHEN nd.STATUS_KEY = 'ODOMETER' 
+                 AND (nd.STATUS_VALUE LIKE 'X000' OR LENGTH(nd.STATUS_VALUE) > 6) 
+                 AND DATE(nd.PRODUCED_DATE_TIME_LATEST) > '2021-04-22' 
+            THEN CAST(ROUND(CAST(nd.STATUS_VALUE AS INT64) / 1000) AS STRING)
+            ELSE nd.STATUS_VALUE
+        END AS VALUE,
