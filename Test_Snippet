@@ -1,3 +1,5 @@
+There's a gcs bucket, in which there are two folders, compressed and decompressed. There are zip files in compressed folder. Now, write a cloud function in gen2 which unzips the zip file from compressed and move the file in the decompressed folder. Please ensure there should be no infinite loop, i.e. there should be a trigger so that the function only runs when there's a new zip file arrives in the compressed folder. Also make sure I don't want to download zip file in memory at all.
+
 SELECT 
     Model,
     Brand,
