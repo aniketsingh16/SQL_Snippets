@@ -1,4 +1,97 @@
+import re
+
+def extract_filter_criteria(pattern):
+    match = re.search(r'(\d{4})(?:_(\d{2}))?(?:_(\d{2}))?', pattern)
+    
+    if not match:
+        return None, None, None
+    
+    year = match.group(1)
+    month = match.group(2)  # optional
+    day = match.group(3)    # optional
+    
+    return year, month, day
+
+def file_matches(filename, year, month=None, day=None):
+    match = re.search(r'(\d{4})_(\d{2})_(\d{2})', filename)
+    
+    if not match:
+        return False
+    
+    file_year, file_month, file_day = match.groups()
+    
+    if day:  # Most specific
+        return (
+            file_year == year and
+            file_month == month and
+            file_day == day
+        )
+    
+    if month:  # Month level
+        return file_year == year and file_month == month
+    
+    # Year level
+    return file_year == year
+def filter_files(file_list, pattern):
+    year, month, day = extract_filter_criteria(pattern)
+    
+    if not year:
+        return []
+    
+    return [
+        f for f in file_list
+        if file_matches(f, year, month, day)
+    ]
+files = [
+    "MXICHO_2026_03_26LYOYQ.zip",
+    "MXICHO_2026_03_15ABCD.zip",
+    "MXICHO_2026_04_01XYZ.zip",
+    "MXICHO_2025_03_26TEST.zip"
+]
+
+# Day-level
+pattern1 = "MICHO_2026_03_26LYODJ"
+# Month-level
+pattern2 = "MICHO_2026_03LKDJU"
+# Year-level
+pattern3 = "MICHO_2026LKDJU"
+
+print(filter_files(files, pattern1))
+# → Only 26 March 2026 files
+
+print(filter_files(files, pattern2))
+# → All March 2026 files
+
+print(filter_files(files, pattern3))
+# → All 2026 files
+
+def build_prefix(base_path, year, month=None, day=None):
+    prefix = f"{base_path}/MXICHO_{year}"
+    
+    if month:
+        prefix += f"_{month}"
+    if day:
+        prefix += f"_{day}"
+    
+    return prefix
+
+
+def process_pattern_files(pattern):
+    from google.cloud import storage
+
+    client = storage.Client()
+    bucket = client.bucket("your-bucket")
+
+    year, month, day = extract_filter_criteria(pattern)
+
+    prefix = build_prefix("your-folder", year, month, day)
+
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    for blob in blobs:
+        print(f"Processing: {blob.name}")
 CASE 
+
             -- TYRE PRESSURE LOGIC: Convert KPA to HPA if PSI is between 5-10
             WHEN nd.STATUS_KEY = 'TYRE_PRESSURE' THEN 
                 CASE 
